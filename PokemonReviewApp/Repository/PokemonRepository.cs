@@ -64,6 +64,12 @@ public class PokemonRepository : IPokemonRepository
             return Save();
     }
 
+    public bool UpdatePokemon(Pokemon pokemon)
+    {
+        _context.Update(pokemon);
+        return Save();  
+    }
+
     public bool Save()
     {
         var saved = _context.SaveChanges();
