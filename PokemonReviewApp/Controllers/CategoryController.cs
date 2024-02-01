@@ -112,4 +112,23 @@ public class CategoryController : Controller
 
         return NoContent();
     }
+
+    [HttpDelete]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(404)]
+    public IActionResult DeleteCategory(int categoryId)
+    {
+        if (!_categoryRepository.CategoryExists(categoryId))
+            return NotFound();
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        var category = _categoryRepository.GetCategory(categoryId);
+        if (!_categoryRepository.DeleteCategory(category))
+        {
+            ModelState.AddModelError("", "Something went wrong while deleting category");
+            return StatusCode(500, ModelState);
+        }
+        return NoContent();
+    }
 }
