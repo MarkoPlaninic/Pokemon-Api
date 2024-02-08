@@ -44,6 +44,18 @@ public class ReviewRepository: IReviewRepository
         return Save();
     }
 
+    public bool DeleteReview(Review review)
+    {
+        _context.Remove(review);
+        return Save();
+    }
+
+    public bool DeleteReviews(List<Review> reviews)
+    {
+        _context.RemoveRange(reviews);
+        return Save();
+    }
+
     public bool Save()
     {
         var saved = _context.SaveChanges();

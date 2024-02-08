@@ -13,10 +13,12 @@ public class PokemonController : Controller
 {
     private readonly IPokemonRepository _pokemonRepository;
     private readonly IMapper _mapper;
+    private readonly IReviewRepository _reviewRepository;
 
-    public PokemonController(IPokemonRepository pokemonRepository, IMapper mapper)
+    public PokemonController(IPokemonRepository pokemonRepository,IReviewRepository reviewRepository, IMapper mapper)
     {
         _pokemonRepository = pokemonRepository;
+        _reviewRepository = reviewRepository;
         _mapper = mapper;
     }
 
@@ -107,6 +109,31 @@ public class PokemonController : Controller
             return StatusCode(500, ModelState);
         }
 
+        return NoContent();
+    }
+    
+    [HttpDelete]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(404)]
+    public IActionResult DeletePokemon (int pokemonId)
+    {
+        if (!_pokemonRepository.PokemonExists(pokemonId))
+            return NotFound();
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        
+        var owner = _pokemonRepository.GetPokemon(pokemonId);
+        var reviews = _reviewRepository.GetReviewsOfAPokemon(pokemonId);
+        if (_reviewRepository.DeleteReviews(reviews.ToList()))
+        {
+            ModelState.AddModelError("", "Something went wrong while deleting reviews");
+        }
+        if (!_pokemonRepository.DeletePokemon(owner))
+        {
+            ModelState.AddModelError("", "Something went wrong while deleting pokemon");
+            return StatusCode(500, ModelState);
+        }
         return NoContent();
     }
 }
